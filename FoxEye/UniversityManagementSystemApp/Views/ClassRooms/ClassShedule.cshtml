@@ -1,0 +1,57 @@
+﻿@model IEnumerable<UniversityManagementSystemApp.Models.ClassRoom
+
+@{
+    ViewBag.Title = "ClassShedule";
+}
+
+<h2>ClassShedule</h2>
+
+ <div class="form-group">
+            @Html.Label("Department", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("DepartmentId", null,"Select a Department" ,htmlAttributes: new { @class = "form-control" })
+                
+            </div>
+        </div>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Course.Code)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Course.Name)
+        </th>
+        <th>
+            @Html.Label("Shedule")
+        </th>
+
+        <th></th>
+    </tr>
+    @*@{
+        
+    }
+
+    @foreach (var item in )
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Course.Code)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Course.Name)
+            </td>
+            <td>
+
+                @Html.DisplayFor(modelItem => item.Days)
+                @Html.LabelFor(modelItem => item.RoomNo)
+                @Html.DisplayFor(modelItem => item.RoomNo)
+                @Html.LabelFor(modelItem => item.StartTime)
+                @Html.DisplayFor(modelItem => item.StartTime)
+                @Html.LabelFor(modelItem => item.EndTime)
+                @Html.DisplayFor(modelItem => item.EndTime)
+            </td>
+
+        </tr>
+    }*@
+
+</table>

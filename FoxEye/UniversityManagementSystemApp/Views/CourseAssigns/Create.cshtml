@@ -1,0 +1,221 @@
+﻿@using Microsoft.Ajax.Utilities
+@model UniversityManagementSystemApp.Models.CourseAssign
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>CourseAssign</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.DepartmentId, "Department", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("DepartmentId", null,"Select a Department" ,htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.TeacherId, "Teacher", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("TeacherId", new List<SelectListItem>(),"--Select--", htmlAttributes: new { @class = "form-control" })
+                @*<select class="form-control" name="TeacherId" id="TeacherId">
+                    
+                </select>*@
+                @*@Html.ValidationMessageFor(model => model.TeacherId, "", new { @class = "text-danger" })*@
+            </div>
+        </div>
+        
+        <div class="form-group">
+            @Html.Label("Assign to be taken", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.Editor("CreditAssigned", new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Teacher.Credit, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        <div class="form-group">
+            @Html.Label("Remaining", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.Editor("RemainingCredit", new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Teacher.Credit, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CourseId, "Course", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("CourseId", null,"--Select--" ,htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.CourseId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        <div class="form-group">
+            @Html.LabelFor(model => model.Course.Name, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Course.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Course.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Credit, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Credit, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Credit, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" id="saveButton" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+            
+        $("#DepartmentId").change(function () {
+            var optionSelected = $(this).find("option:selected");
+            var depId = optionSelected.val();
+            $('#TeacherId').empty();
+            $('#TeacherId').first().val(null).html("<option value=''>--Select--</option>");
+            $("#CreditAssigned").val(null);
+            $("#RemainingCredit").val(null);
+            var mydata = { departmentId: depId };
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetAllTeacher", "CourseAssigns")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(mydata),
+                dataType: "json",
+                success: function (data) {
+                    
+                    var mySelect = $('#TeacherId');
+                    $.each(data, function (val, text) {
+                        mySelect.append(
+                            $('<option></option>').val(text.TeacherId).html(text.Name)
+                        );
+                    });
+
+                }
+            });
+            
+        });
+
+
+        
+            $("#TeacherId").change(function () {
+                var optionSelected = $(this).find("option:selected");
+                var teacherId = optionSelected.val();
+                var mydata = { teacherId: teacherId };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetTeacherCreditInfo", "Teachers")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(mydata),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#CreditAssigned").val(data.AssignCredit);
+                        $("#RemainingCredit").val(data.RemainingCredit);
+
+                    }
+                });
+            });
+
+
+
+            $("#CourseId").change(function () {
+                var optionSelected = $(this).find("option:selected");
+                var courseId = optionSelected.val();
+                var mydata = { courseId: courseId };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetCourseInfo", "CourseAssigns")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(mydata),
+                    dataType: "json",
+                    success: function (data) {
+
+                        $("#Course_Name").val(data.Name);
+                        $("#Credit").val(data.Credit);
+
+                    }
+                });
+            });
+
+
+        
+
+        $("#saveButton").click(function () {
+            var teacher_id = $("#TeacherId").find("option:selected");
+            var teacherId = teacher_id.val();
+            var r_credit = Number($("#RemainingCredit").val());
+            var c_credit = Number($("#Credit").val());
+
+            var updateCradit = c_credit - r_credit;
+            var mydata = { teacherId: teacherId, updateCradit: updateCradit };
+            if (c_credit > r_credit) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UpdateCredit","Teachers")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(mydata),
+                    dataType: "json",
+                    success: function (data) {
+                        alert(data);
+                    }
+                });
+            }
+
+        });
+
+            $("#saveButton").click(function () {
+                var teacherSelected = $("#TeacherId").find("option:selected");
+                var courseSelected = $("#CourseId").find("option:selected");
+                var teacherId = teacherSelected.val();
+                var courseId = courseSelected.val();
+
+                var mydata = { teacherId: teacherId, courseId: courseId };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("IsAssigned", "CourseAssigns")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(mydata),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data==false) {
+                            alert(" Teachsr already assigned in this course!");
+                        }
+  
+                    }
+                });
+                //return false;
+            });
+
+           
+      
+    });
+        
+    </script>
+    
+
+}
